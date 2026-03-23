@@ -311,7 +311,7 @@
         moon.position.addScaledVector(moonVelocity, s);
       }
 
-      // Subtle sun movement
+      // mouvement subtil du soleil 
       sun.rotation.y += 0.002 * s;
       sunGlow.material.opacity = 0.62 + Math.sin(t * 2.2) * 0.12;
       const glowScale = 8.3 + Math.sin(t * 1.7) * 0.55;
@@ -320,7 +320,7 @@
       const glowOuterScale = 12 + Math.sin(t * 1.1) * 0.9;
       sunGlowOuter.scale.set(glowOuterScale, glowOuterScale, 1);
 
-      // Emit particles from time to time (scaled with speed)
+      // emet des particules de temps en temps (porportionel à la vitesse)
       if (Math.random() < 0.08 * Math.min(s, 2)) {
         spawnSolarParticle();
       }

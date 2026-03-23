@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>🌟 Mon Premier Monde 3D - Three.js</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: #000; font-family: Arial; }
+    canvas { display: block; }
+    #info {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      color: white;
+      background: rgba(0,0,0,0.5);
+      padding: 10px 15px;
+      border-radius: 10px;
+      pointer-events: none;
+      font-size: 18px;
+    }
+    #texturePicker {
+      position: absolute;
+      top: 90px;
+      left: 15px;
+      z-index: 10;
+      color: white;
+      background: rgba(0,0,0,0.5);
+      padding: 8px 10px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="info">
+    Appuie sur les flèches ← → ↑ ↓<br>
+    pour faire tourner ou déplacer le cube !
+  </div>
+  <input id="texturePicker" type="file" accept="image/*" />
+
+  <script type="module">
+    import * as THREE from "https://esm.sh/three@0.183.0";
+    import { OrbitControls } from "https://esm.sh/three@0.183.0/examples/jsm/controls/OrbitControls.js";
+
+    // =============================================
+    // 1. LA SCÈNE = la pièce vide
+    // =============================================
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x112244); // fond bleu foncé 
+
+    // =============================================
+    // 2. LA CAMÉRA = nos yeux
+    // =============================================
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5; // on recule pour bien voir
+
+    // =============================================
+    // 3. LE RENDERER = l'écran qui montre tout
+    // =============================================
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Contrôles souris standards : clic gauche (orbite), molette (zoom), clic droit (pan)
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // =============================================
+    // 4. NOTRE PREMIER OBJET : LE CUBE  !
+    // =============================================
+    const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5); // taille du cube
+    const material = new THREE.MeshStandardMaterial({ 
+      color: 0xff00aa,     // rose flashy
+      metalness: 0.6,      // un peu métallique
+      roughness: 0.3       // un peu brillant
+    });
+
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube); // on met le cube dans la scène
+
+    // Choisir une image locale et l'appliquer comme texture du cube
+    const texturePicker = document.getElementById("texturePicker");
+    texturePicker.addEventListener("change", (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result;
+        if (typeof dataUrl !== "string") return;
+
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load(
+          dataUrl,
+          (texture) => {
+            material.map = texture;
+            material.needsUpdate = true;
+            console.log("Texture locale appliquée");
+          },
+          undefined,
+          (err) => console.error("Erreur texture locale:", err)
+        );
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // =============================================
+    // LUMIÈRES (pour que ce soit beau !)
+    // =============================================
+
+    // lumiere ambiante (comme la lumière du soleil)
+    const lumiereAmbiance = new THREE.AmbientLight(0x404040, 0.8);
+    scene.add(lumiereAmbiance);
+
+    // lumiere directionnelle (comme un spot lumineux)
+    const lumierePrincipale = new THREE.DirectionalLight(0xffffff, 1.2);
+    lumierePrincipale.position.set(3, 5, 4);
+    scene.add(lumierePrincipale);
+
+   
+    // lumiere ponctuelle (comme une lampe de poche)
+    const lumiereBonus = new THREE.PointLight(0x0088ff, 40, 18);
+    lumiereBonus.position.set(-2, 2, 3);
+    // scene.add(lumiereBonus);
+
+
+   
+    // =============================================
+    // BOUCLE D'ANIMATION (60 fois par seconde)
+    // =============================================
+        function animate() {
+        requestAnimationFrame(animate);
+
+
+        /* Le cube tourne tout seul */
+        //cube.rotation.x += 0.01;   
+        //  cube.rotation.y += 0.015; 
+
+        // on commente les controles pour que le cube tourne librement
+        // controls.update();
+        renderer.render(scene, camera);
+        }
+    animate();  
+
+    // =============================================
+    // CONTRÔLES CLAVIER (très simple)
+    // =============================================
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight') cube.rotation.y += 0.3;
+      if (event.key === 'ArrowLeft')  cube.rotation.y -= 0.3;
+      if (event.key === 'ArrowUp')    cube.position.y += 0.3;
+      if (event.key === 'ArrowDown')  cube.position.y -= 0.3;
+    });
+
+    // Bonus : si on change la taille de la fenêtre, ça s'adapte
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+  </script>
+</body>
+</html>

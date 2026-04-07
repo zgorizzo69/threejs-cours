@@ -11,3 +11,16 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Pygame Zero
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzz
+*.pywzz
+*.pyzzz
+.venv/
